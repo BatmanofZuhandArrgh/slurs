@@ -57,14 +57,75 @@ def obfuscate_word(
     
     return "".join(char_list)
 
+SPLITTERS = [' ', '-', '_', '.', ','] 
+def split_word(word, 
+               splitters = SPLITTERS,
+               stretch_prob: float = 0.5,
+               
+               ):    
+    if random.random() < stretch_prob:
+        char_list = list(word)
+        insert_char = random.choice(splitters)
+        return insert_char.join(char_list)
+    else:
+        return word 
+
+def repeat_char(word, 
+                num_char_repeat: int = 1,
+                repeat_max_freq: int = 3,
+                repeat_prob: float = 0.5):
+    if random.random() < repeat_prob:
+        indices = random.sample(range(len(word)), min(num_char_repeat, len(word)))
+        for index in indices:
+            repeat_freq = random.randint(1, repeat_max_freq)
+            word = word[:index] + word[index] * repeat_freq + word[index+1:]
+
+    return word
+
+def pluralize_word(word, plural_prob: float = 0.5):
+    es_suffixes = tuple(['s', 'ch', 'sh', 'ss', 'x', 'z'])
+    
+    if random.random() < plural_prob:
+        lower_word = word.lower() 
+        if lower_word.endswith("y"):
+            return word[:-1] + "ies"
+        elif lower_word.endswith(es_suffixes):
+            return word + "es"
+        else:
+            return word + "s" 
+    else:
+        return word   
 
 if __name__ == "__main__":
-# Example usage
-    example_word = "cunt"
+    example_word = "pussy"
+
+    #Replace chars
     obfuscated_word = obfuscate_word(
         example_word,
         num_char_replace=2,
         vowel_prob=None,
         debug= True
         )
+
+    #Pluralize word
+    obfuscated_word = pluralize_word(
+        obfuscated_word,
+        plural_prob=0.5
+        )
+
+    # Repeat chars
+    obfuscated_word = repeat_char(
+        obfuscated_word,
+        num_char_repeat=1,
+        repeat_max_freq=3,
+        repeat_prob=0.5
+        )    
+    
+    #Insert splitter
+    obfuscated_word = split_word(
+        obfuscated_word,
+        stretch_prob=0.2
+        )
+    
+
     print(obfuscated_word)
